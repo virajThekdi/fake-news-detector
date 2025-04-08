@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fake News Detector</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to right, #c9d6ff, #e2e2e2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    .card {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    label {
+      font-weight: 500;
+      margin-top: 10px;
+      display: block;
+    }
+
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 12px;
+      font-size: 1rem;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      resize: none;
+    }
+
+    input[type="file"] {
+      margin-top: 15px;
+      font-size: 0.95rem;
+    }
+
+    .button-row {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 1rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      width: 48%;
+    }
+
+    button:hover {
+      background-color: #3e8e41;
+    }
+
+    .reset-btn {
+      background-color: #f44336;
+    }
+
+    .reset-btn:hover {
+      background-color: #d32f2f;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📰 Fake News Detector</h1>
+
+  <div class="card">
+    <form id="news-form">
+      <label for="text-input">Paste News Text:</label>
+      <textarea id="text-input" placeholder="Enter news content here..."></textarea>
+
+      <label for="pdf-file">Or Upload a PDF File:</label>
+      <input type="file" id="pdf-file" accept=".pdf">
+
+      <div class="button-row">
+        <button type="submit" id="submit-btn">Check News</button>
+        <button type="button" class="reset-btn" id="reset-btn">Reset</button>
+      </div>
+    </form>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('news-form');
+    const resultDiv = document.getElementById('result');
+    const button = document.getElementById('submit-btn');
+    const resetBtn = document.getElementById('reset-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const text = document.getElementById('text-input').value.trim();
+      const file = document.getElementById('pdf-file').files[0];
+
+      resultDiv.textContent = '';
+      button.textContent = '⏳ Predicting...';
+      button.disabled = true;
+
+      let response;
+
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        response = await fetch('/predict', {
+          method: 'POST',
+          body: formData
+        });
+      } else if (text) {
+        response = await fetch('/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+      } else {
+        resultDiv.textContent = '❌ Please enter news text or upload a PDF file.';
+        button.textContent = 'Check News';
+        button.disabled = false;
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.prediction) {
+        resultDiv.textContent = `✅ Prediction: ${data.prediction} News`;
+      } else {
+        resultDiv.textContent = `❌ Error: ${data.error}`;
+      }
+
+      button.textContent = 'Check News';
+      button.disabled = false;
+    });
+
+    resetBtn.addEventListener('click', () => {
+      document.getElementById('text-input').value = '';
+      document.getElementById('pdf-file').value = '';
+      resultDiv.textContent = '';
+    });
+  </script>
+
+</body>
+</html>
