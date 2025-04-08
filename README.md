@@ -24,3 +24,29 @@ A web application built with Flask that uses Machine Learning to detect whether 
    ```bash
    git clone https://github.com/virajThekdi/fake-news-detector.git
    cd fake-news-detector
+
+   
+2. **Create and activate a virtual environment**
+
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate  # For Windows
+3. **Install dependencies**
+
+   ```bash
+   pip install -r requirements.txt
+
+4. **Run the Flask app**
+
+   Make sure your virtual environment is activated, then run:
+
+   ```bash
+   python app.py
+5. **Open the app in your browser**
+
+   After starting the server, open your browser and go to:
+
+
+
+
+   
